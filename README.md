@@ -1,45 +1,51 @@
-# Local Graph-Based Chatbot
+# GraphBasedChatbot
 
-A local Python chatbot that uses sentence embeddings and a directed graph to manage conversations. It combines semantic similarity matching with a node-and-edge conversation structure, allowing responses and conversation paths to be defined and edited without training a dedicated intent-classification model.
+A local graph-based conversational engine built with Python, PyQt6, and Sentence Transformers.
+
+GraphBasedChatbot combines **directed graph traversal** with **semantic similarity matching** to create structured conversations without requiring a dedicated intent-classification model.
+
+Instead of selecting an answer from a global list, the chatbot evaluates the user's message against the transitions available from its current conversation state. This makes conversation paths explicit, editable, and easier to reason about.
+
+**Repository:** https://github.com/nour0u0/graphBasedChatbot
 
 ## Features
 
-- **Local semantic matching:** Uses Sentence Transformers with `all-MiniLM-L6-v2` to convert user messages into embedding vectors.
-- **Graph-based conversations:** Represents conversation states as nodes and possible user responses as directed edges.
-- **Configurable similarity threshold:** Controls how closely a user message must match a registered response.
-- **Graph editor:** Provides a visual interface for creating and editing conversation nodes and connections.
-- **Node management:** Add, update, and delete conversation nodes.
-- **Edge management:** Define user responses connecting one node to another.
-- **Chat testing:** Test the conversation flow through the graphical interface.
-- **Configuration tab:** Edit the fallback response, initial node, fallback node, and similarity threshold.
-- **Local model management:** Loads an existing embedding model or downloads it when necessary.
-- **Command-line mode:** Run and test conversations directly in the terminal.
-- **JSON-based storage:** Stores the conversation graph and application configuration in JSON files.
+- **Graph-based conversation management:** Represent conversation states as nodes and transitions as directed edges.
+- **Semantic response matching:** Use `all-MiniLM-L6-v2` to compare the meaning of user messages with registered transition examples.
+- **Configurable similarity threshold:** Control how closely a message must match a registered response.
+- **Visual graph editor:** Inspect and edit the conversation structure through a PyQt6 interface.
+- **Node management:** Create, edit, and delete conversation states.
+- **Edge management:** Define the responses that trigger transitions between states.
+- **Interactive chat testing:** Test conversation paths directly through the graphical interface.
+- **Command-line interface:** Run conversations from a terminal.
+- **JSON persistence:** Store graph definitions, nodes, edges, and application configuration in JSON files.
+- **Local model support:** Load the embedding model from local storage or download it when needed.
+- **Configurable fallback behavior:** Define the fallback answer and fallback node for unmatched messages.
 
 ## Technologies
 
-- Python
-- PyQt6
-- Sentence Transformers
-- Sentence embedding model: `all-MiniLM-L6-v2`
-- JSON for graph data and configuration
-- Git for version control
+| Technology | Purpose |
+|---|---|
+| Python | Application logic |
+| PyQt6 | Desktop graphical interface |
+| Sentence Transformers | Sentence embedding generation |
+| `all-MiniLM-L6-v2` | Semantic representation of text |
+| JSON | Graph definitions, configuration, and data storage |
+| Git | Version control |
 
-## Project Architecture
+The `all-MiniLM-L6-v2` model produces 384-dimensional sentence embeddings.
 
-The project separates data models, services, and graphical views.
+## Architecture
+
+The application separates graph data structures, embedding operations, conversation logic, registration, and graphical components.
 
 ```text
-ChatBot/
-├── main.py
+GraphBasedChatbot/
+├── Main.py
+├── Graph.json
 ├── config.json
-├── graph.json
 ├── README.md
-├── LICENSE
 ├── .gitignore
-│
-├── EmbeddinModel/
-│   └── all-MiniLM-L6-v2/
 │
 ├── DB/
 │   ├── Node.json
@@ -69,133 +75,139 @@ ChatBot/
         └── GraphProperties.py
 ```
 
-The directory structure above describes the main components. Individual filenames may vary depending on the current project version.
+This tree describes the documented application structure. Consult the repository for the exact current contents of each directory.
 
-### 1. Model Layer
+### 1. Model layer
 
-The `Model/` directory defines the data structures used to represent the conversation graph.
+The `Model/` directory contains the data structures used by the conversation engine.
 
 #### Node
 
-A node represents a conversation state and stores the answer displayed by the chatbot.
-
-Conceptually, a node contains:
+A node represents a conversation state and stores the answer associated with that state.
 
 | Field | Description |
 |---|---|
 | `Id` | Unique node identifier |
-| `Answer` | Text displayed when the node is reached |
+| `Answer` | Text displayed by the chatbot when the node is reached |
 
 #### Edge
 
-An edge represents a possible transition between two conversation states.
+An edge represents a directed transition between two conversation states.
 
 | Field | Description |
 |---|---|
 | `Id` | Unique edge identifier |
-| `NodeFromID` | ID of the source node |
-| `NodeToID` | ID of the destination node |
+| `NodeFromID` | Source node identifier |
+| `NodeToID` | Destination node identifier |
 | `UserResponse` | Example of a user message that triggers the transition |
-| `Embedding` | Vector representation of the registered user response |
+| `Embedding` | Vector representation of the registered response |
 
-The graph is directed: an edge from node A to node B does not automatically create a transition from B to A.
+The graph is directed. An edge from node A to node B does not automatically create an edge from B to A.
 
-### 2. Embedding Service
+### 2. Embedding service
 
-`Service/EmbeddingService.py` wraps the Sentence Transformers model.
+`Service/EmbeddingService.py` provides the interface to the sentence embedding model.
 
-Its responsibilities include:
+Its documented responsibilities include:
 
-- Loading the embedding model from local files.
-- Converting a single text into an embedding.
-- Converting multiple texts into embeddings.
-- Normalizing embeddings for semantic similarity comparison.
-- Validating input text before encoding.
+- Loading the embedding model.
+- Encoding individual text inputs.
+- Encoding multiple text inputs.
+- Normalizing embeddings for similarity calculations.
+- Validating input text.
 
-The `all-MiniLM-L6-v2` model produces 384-dimensional sentence embeddings.
+Semantic embeddings allow the chatbot to compare messages that express similar meanings without requiring exact string equality.
 
-Instead of requiring an exact string match, the chatbot can compare the meaning of a user's message with registered responses using vector similarity.
+For example, a registered response such as:
 
-### 3. Graph Service
+`I want to know the price`
+
+may be semantically similar to:
+
+`How much does it cost?`
+
+Whether a particular message is accepted depends on the model, the available transition examples, and the configured similarity threshold.
+
+### 3. Graph service
 
 `Service/Graph.py` manages the conversation graph and its active state.
 
 Its responsibilities include:
 
-- Loading nodes and edges from JSON storage.
-- Tracking the active conversation node.
+- Loading registered nodes and edges.
+- Tracking the active node.
 - Retrieving outgoing edges from the active node.
 - Comparing user input with registered edge responses.
-- Applying the configured similarity threshold.
-- Moving to the destination node when a suitable match is found.
-- Handling fallback behavior when no suitable match is available.
+- Selecting the best matching transition.
+- Applying the similarity threshold.
+- Moving to a destination node when a suitable transition is found.
+- Handling unmatched input through fallback behavior.
 - Resetting the conversation to its initial state.
 
-### 4. Registration Service
+The graph constrains the set of candidate transitions. Only edges available from the active node are considered, rather than treating every registered response as a globally available answer.
 
-`Service/Register.py` imports the graph definition from `graph.json` into the application's JSON database.
+### 4. Registration service
 
-The registration file defines nodes and their connections. During registration, edge responses are converted into embeddings so that they can be matched semantically during conversations.
+`Service/Register.py` provides the graph registration workflow.
 
-This separates the graph definition from the runtime data structures.
+The graph definition describes nodes and their connections. During registration, the transition responses are converted into embeddings and stored with the runtime records.
 
-### 5. Model Downloader
+This separates the editable graph definition from the data used during conversation processing.
 
-`Service/ModelDownloader.py` provides a graphical setup dialog and background worker for preparing the embedding model.
+**Important:** Back up the existing JSON database before registering a modified graph. Check the registration implementation before reusing an existing database, especially if existing records must be preserved.
 
-It checks whether the model is already stored locally. If available, it loads the local copy. Otherwise, it downloads the model and saves it to the project's model directory.
+### 5. Model downloader
 
-The background worker prevents the model preparation process from blocking the GUI thread while it runs. The interface displays status messages during preparation.
+`Service/ModelDownloader.py` handles preparation of the embedding model.
 
-An internet connection is required when the model needs to be downloaded. After the model has been saved successfully, local loading can work without internet access.
+The documented workflow checks for an available local model and downloads it when necessary. The setup process provides status information through the graphical interface.
 
-### 6. Graphical Interface
+An internet connection is required if the model must be downloaded. Once the required model files are available locally, model loading can operate without downloading them again.
 
-The GUI is built with PyQt6.
+### 6. Graphical interface
 
-The main interface provides separate areas for:
+The graphical interface is built with PyQt6.
+
+The main interface provides the following areas:
 
 - **Nodes:** Manage conversation states and their answers.
-- **Edges:** Manage user-response examples and graph transitions.
-- **Graph:** Visualize and edit the conversation graph.
-- **Chat Test:** Interact with the chatbot and test its behavior.
-- **Configuration:** Edit application settings.
+- **Edges:** Manage transition examples and graph connections.
+- **Graph:** Visualize and edit the directed graph.
+- **Chat Test:** Test the conversation engine interactively.
+- **Configuration:** Modify chatbot settings.
 
-The graph editor supports selecting nodes and edges and editing graph connections through the visual interface.
+The visual graph editor makes the conversation structure explicit. Rather than encoding every conversational branch in a large collection of conditional statements, the developer can inspect the states and transitions directly.
 
-The configuration tab edits `config.json`. After saving configuration changes, close and restart the application for the new settings to take effect.
+## How conversation matching works
 
-## How Conversation Matching Works
+The conversation engine follows this general processing sequence:
 
-The chatbot uses semantic similarity rather than relying exclusively on exact text matching.
-
-The general processing flow is:
-
-1. The user enters a message.
+1. The user submits a message.
 2. The embedding service converts the message into a vector.
-3. The graph service retrieves the outgoing edges of the active node.
-4. The input embedding is compared with the embeddings stored on those edges.
-5. The best candidate is evaluated against the similarity threshold.
-6. If the candidate meets the threshold, the graph transitions to its destination node.
-7. If no candidate meets the threshold, the configured fallback behavior is used.
+3. The graph service identifies the outgoing edges of the active node.
+4. The input embedding is compared with the registered embeddings of those edges.
+5. The best candidate is selected.
+6. The candidate's similarity is evaluated against the configured threshold.
+7. If the candidate is accepted, the conversation moves to the destination node.
+8. If no candidate meets the threshold, the configured fallback behavior is applied.
 
-For normalized embeddings, cosine similarity can be calculated using the dot product:
+For normalized embedding vectors, cosine similarity can be calculated using their dot product:
 
 \[
 \operatorname{similarity}(A,B)=A\cdot B
 \]
 
-The threshold determines how strict the matching behavior is. A higher threshold generally requires a closer semantic match, while a lower threshold can accept more loosely related messages.
+A higher threshold generally makes acceptance stricter, while a lower threshold allows more loosely related messages to match.
 
-The threshold does not guarantee that a match is correct. Registered response examples and testing remain important.
+A similarity score is not a guarantee of correctness. Good transition examples, appropriate thresholds, and testing with different user phrasings remain important.
 
-## Data Storage
+## Data storage
 
-The application uses JSON files to keep its data readable and editable.
+The application uses JSON files to separate graph definitions, runtime records, and configuration.
 
 ### `config.json`
 
-Stores application settings.
+This file stores the chatbot's configuration.
 
 Example:
 
@@ -208,18 +220,20 @@ Example:
 }
 ```
 
-- `FALLBACK_ANSWER`: Response used when the chatbot cannot find a suitable match.
-- `INITIAL_NODE_ID`: Node used to start a conversation.
-- `FALLBACK_NODE_ID`: Configured fallback node identifier.
-- `SIMILARITY_THRESHOLD`: Minimum similarity score accepted for matching.
+| Setting | Description |
+|---|---|
+| `FALLBACK_ANSWER` | Text returned when no suitable match is found |
+| `INITIAL_NODE_ID` | Node used to start a conversation |
+| `FALLBACK_NODE_ID` | Configured fallback node identifier |
+| `SIMILARITY_THRESHOLD` | Minimum similarity score accepted for matching |
 
-### `graph.json`
+The values shown are an example. The appropriate threshold depends on the application and should be evaluated empirically.
 
-Defines the graph that can be registered into the database.
+### `Graph.json`
 
-Conceptually, it contains a `Nodes` collection and an `Edges` collection.
+This file defines the conversation graph to be registered.
 
-Example:
+A simplified conceptual example is:
 
 ```json
 {
@@ -243,131 +257,161 @@ Example:
 }
 ```
 
-This is a simplified example of the expected structure. The graph can contain as many nodes and edges as needed, provided that the referenced node IDs are valid.
+The example illustrates the graph's basic structure. Use the exact field names and data format expected by the current registration implementation when editing the real file.
+
+Node identifiers must be unique, and edge references must point to valid nodes.
 
 ### `DB/Node.json`
 
-Stores registered conversation nodes.
+Stores the registered conversation nodes used by the application.
 
 ### `DB/Edge.json`
 
-Stores registered edges, including their user-response text and embedding vectors.
+Stores registered transition records, including user-response text and embedding vectors.
 
-The database files and source graph serve different purposes: `graph.json` defines the graph to register, while the `DB/` files hold the runtime records.
+The graph definition and runtime database serve different purposes:
+
+- `Graph.json` describes the graph to register.
+- `DB/Node.json` and `DB/Edge.json` hold the registered records used by the application.
 
 ## Installation
 
 ### Requirements
 
-- Python 3.10 or a compatible version supported by the installed dependencies.
-- Internet access for the initial model download.
-- Sufficient disk space for the Python dependencies and embedding model.
+- Python 3.10 or another Python version compatible with the installed dependencies.
+- Git.
+- Internet access for the initial model download, if the model is not already available locally.
+- Sufficient disk space for the Python packages and embedding model.
+
+The commands below use Windows Command Prompt or PowerShell.
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/nour0u0/IntentChatbot.git
-cd IntentChatbot
+git clone https://github.com/nour0u0/graphBasedChatbot.git
+cd graphBasedChatbot
 ```
 
 ### 2. Create a virtual environment
-
-On Windows:
 
 ```bash
 python -m venv .venv
 ```
 
-Activate it using Command Prompt:
+Activate it in Windows Command Prompt:
 
 ```bat
 .venv\Scripts\activate
 ```
 
-Or PowerShell:
+Or activate it in PowerShell:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
+If PowerShell prevents activation because of its execution policy, use Command Prompt or follow the appropriate PowerShell policy guidance for your environment.
+
 ### 3. Install dependencies
+
+Upgrade `pip`:
 
 ```bash
 python -m pip install --upgrade pip
+```
+
+Install the principal application dependencies:
+
+```bash
 python -m pip install PyQt6 sentence-transformers
 ```
 
-If the project includes a `requirements.txt`, install the pinned dependencies instead:
+If a `requirements.txt` file is present in the version you cloned, prefer its declared dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-## Running the Application
+## Running the application
+
+Run commands from the repository root with the virtual environment activated.
 
 ### Graphical interface
 
 ```bash
-python main.py
+python Main.py
 ```
 
-On the first run, the model setup dialog checks for the local model and downloads it if necessary. Once preparation succeeds, the main application opens.
+The application prepares the embedding model before opening the main interface. If the model is missing, the setup workflow may require an internet connection to download it.
 
 ### Command-line interface
 
 ```bash
-python main.py --cli
+python Main.py --cli
 ```
 
 The CLI accepts messages directly in the terminal.
 
 Special commands:
 
-- `reset` — reset the conversation.
-- `exit` — close the CLI chatbot.
+| Command | Action |
+|---|---|
+| `reset` | Reset the conversation to its initial state |
+| `exit` | Exit the chatbot |
 
 ### Register the graph
 
 ```bash
-python main.py --register
+python Main.py --register
 ```
 
-This imports the graph definition from `graph.json` into the JSON database using the registration service.
+This invokes the graph registration workflow, which imports the graph definition into the JSON database.
 
-Run registration whenever you need to import or update the graph definition. Check the registration service's behavior before using it on an existing database, especially if you need to preserve existing records.
+Back up the existing database before registering changes. Do not assume registration preserves or merges existing records without checking the implementation.
 
-## Configuration and Customization
+**Platform note:** The source currently references `graph.json` in the registration call, while the repository's tracked file is named `Graph.json`. Windows normally resolves this capitalization difference, but case-sensitive filesystems may not. The source and filename should be made consistent before claiming Linux compatibility.
 
-The Configuration tab provides a graphical way to modify the chatbot settings.
+## Configuration and customization
 
-1. Open the application.
-2. Navigate to the Configuration tab.
-3. Edit the desired values.
+The Configuration tab provides a graphical way to modify the chatbot's settings.
+
+1. Launch the application.
+2. Open the Configuration tab.
+3. Edit the desired settings.
 4. Save the configuration.
-5. Close and restart the application.
+5. Restart the application if necessary for the changes to take effect.
 
-You can also edit `config.json` manually, provided that its JSON structure and value types remain valid.
+Alternatively, edit `config.json` directly. Preserve valid JSON syntax and the expected data types.
 
-To change the conversation itself, edit the graph through the GUI or update `graph.json` and register it.
+To change the conversation itself, edit the graph through the graphical interface or modify the graph definition and run the registration workflow.
 
-## Development Notes
+## Development notes
 
-- Keep node IDs and edge references consistent.
-- Ensure that edge embeddings correspond to their registered `UserResponse` text.
-- Test multiple phrasings for each intended transition.
-- Adjust the similarity threshold based on observed behavior.
-- Keep the embedding model out of version control to avoid committing large model files.
-- Keep the configuration and graph data separate from the embedding model.
-- Back up the JSON database before bulk graph registration or changes.
+When extending the project, consider the following:
+
+- Keep node identifiers unique.
+- Ensure every edge references valid source and destination nodes.
+- Ensure stored embeddings correspond to the associated `UserResponse` text.
+- Test several phrasings for every important transition.
+- Evaluate the similarity threshold against both expected matches and unrelated messages.
+- Back up the runtime database before bulk registration.
+- Keep large model files out of version control.
+- Keep configuration, graph definitions, runtime records, and model files logically separate.
+- Test fallback behavior and conversation resets.
+- Verify behavior after registration, not just the validity of the source JSON.
 
 ## Limitations
 
-- Semantic matching depends on the quality of the embedding model and registered examples.
-- Similarity alone does not establish the user's intent with certainty.
-- The graph must contain appropriate transitions to support the desired conversation paths.
-- JSON storage is simple and transparent, but concurrent writes and large-scale data management require additional care.
-- Model setup requires internet access when the model is not already available locally.
+- Semantic similarity does not guarantee that a user's intent has been identified correctly.
+- Matching quality depends on the embedding model and the registered response examples.
+- Conversation paths are limited to the transitions defined in the graph.
+- Fallback behavior must be designed and tested to ensure the conversation remains understandable after an unmatched message.
+- JSON storage is simple and transparent, but concurrent writes and larger datasets may require a more robust storage solution.
+- Model setup requires internet access when the model is not available locally.
+- The documented workflows have not been independently validated across operating systems or Python environments.
 
-## License
 
-MIT License
+
+Explore the source code, inspect the graph architecture, and experiment with semantic matching:
+
+[GitHub: GraphBasedChatbot](https://github.com/nour0u0/graphBasedChatbot)
