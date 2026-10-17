@@ -1,0 +1,54 @@
+[
+    {
+        "Id": 1,
+        "Answer": "Hey! What's up?"
+    },
+    {
+        "Id": 2,
+        "Answer": "Hello! Nice to hear from you. How are you doing?"
+    },
+    {
+        "Id": 3,
+        "Answer": "I'm doing well, thanks for asking! How about you?"
+    },
+    {
+        "Id": 4,
+        "Answer": "Glad to hear that! What have you been up to lately?"
+    },
+    {
+        "Id": 5,
+        "Answer": "I'm here and ready to chat. What's on your mind?"
+    },
+    {
+        "Id": 6,
+        "Answer": "You're welcome! Happy to help."
+    },
+    {
+        "Id": 7,
+        "Answer": "See you later! Take care."
+    },
+    {
+        "Id": 8,
+        "Answer": "No worries! It happens to everyone."
+    },
+    {
+        "Id": 9,
+        "Answer": "That's great! Tell me more."
+    },
+    {
+        "Id": 10,
+        "Answer": "I'm sorry to hear that. Want to talk about it?"
+    },
+    {
+        "Id": 11,
+        "Answer": "Good morning! Hope your day is off to a good start."
+    },
+    {
+        "Id": 12,
+        "Answer": "Good evening! How was your day?"
+    },
+    {
+        "Id": 13,
+        "Answer": "so what do you want specifically"
+    }
+]

@@ -1,0 +1,7 @@
+
+{
+    "FALLBACK_ANSWER": "I didn't understand. Could you rephrase that?",
+    "INITIAL_NODE_ID": 1,
+    "FALLBACK_NODE_ID": 1,
+    "SIMILARITY_THRESHOLD": 0.4
+}

@@ -1,0 +1,140 @@
+
+{
+    "Nodes": [
+        {
+            "Id": 1,
+            "Answer": "Hey! What's up?"
+        },
+        {
+            "Id": 2,
+            "Answer": "Hello! Nice to hear from you. How are you doing?"
+        },
+        {
+            "Id": 3,
+            "Answer": "I'm doing well, thanks for asking! How about you?"
+        },
+        {
+            "Id": 4,
+            "Answer": "Glad to hear that! What have you been up to?"
+        },
+        {
+            "Id": 5,
+            "Answer": "I'm here and ready to chat. What's on your mind?"
+        },
+        {
+            "Id": 6,
+            "Answer": "You're welcome! Happy to help."
+        },
+        {
+            "Id": 7,
+            "Answer": "See you later! Take care."
+        },
+        {
+            "Id": 8,
+            "Answer": "No worries! It happens to everyone."
+        },
+        {
+            "Id": 9,
+            "Answer": "That's great! Tell me more."
+        },
+        {
+            "Id": 10,
+            "Answer": "I'm sorry to hear that. Want to talk about it?"
+        },
+        {
+            "Id": 11,
+            "Answer": "Good morning! Hope your day is off to a good start."
+        },
+        {
+            "Id": 12,
+            "Answer": "Good evening! How was your day?"
+        }
+    ],
+    "Edges": [
+        {
+            "UserResponse": "Hello",
+            "StartNodeId": 1,
+            "DestinationNodeId": 2
+        },
+        {
+            "UserResponse": "Hi there",
+            "StartNodeId": 1,
+            "DestinationNodeId": 2
+        },
+        {
+            "UserResponse": "Hey, how are you",
+            "StartNodeId": 1,
+            "DestinationNodeId": 3
+        },
+        {
+            "UserResponse": "I'm good thanks",
+            "StartNodeId": 3,
+            "DestinationNodeId": 4
+        },
+        {
+            "UserResponse": "I'm doing great",
+            "StartNodeId": 3,
+            "DestinationNodeId": 9
+        },
+        {
+            "UserResponse": "I'm feeling sad",
+            "StartNodeId": 3,
+            "DestinationNodeId": 10
+        },
+        {
+            "UserResponse": "What are you doing",
+            "StartNodeId": 1,
+            "DestinationNodeId": 5
+        },
+        {
+            "UserResponse": "Thank you",
+            "StartNodeId": 1,
+            "DestinationNodeId": 6
+        },
+        {
+            "UserResponse": "Thanks a lot",
+            "StartNodeId": 1,
+            "DestinationNodeId": 6
+        },
+        {
+            "UserResponse": "Sorry about that",
+            "StartNodeId": 1,
+            "DestinationNodeId": 8
+        },
+        {
+            "UserResponse": "Goodbye",
+            "StartNodeId": 1,
+            "DestinationNodeId": 7
+        },
+        {
+            "UserResponse": "See you later",
+            "StartNodeId": 1,
+            "DestinationNodeId": 7
+        },
+        {
+            "UserResponse": "Good morning",
+            "StartNodeId": 1,
+            "DestinationNodeId": 11
+        },
+        {
+            "UserResponse": "Good evening",
+            "StartNodeId": 1,
+            "DestinationNodeId": 12
+        },
+        {
+            "UserResponse": "Tell me more",
+            "StartNodeId": 4,
+            "DestinationNodeId": 9
+        },
+        {
+            "UserResponse": "I want to talk about it",
+            "StartNodeId": 10,
+            "DestinationNodeId": 5
+        },
+        {
+            "UserResponse": "I'm just chilling",
+            "StartNodeId": 5,
+            "DestinationNodeId": 4
+        }
+    ]
+}
